@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id                String            @id @default(uuid())
+  name              String
+  lastName          String
+  dateOfBirth       DateTime
+  licenseNumber     String
+  phone             String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  doctorSchedules   DoctorSchedule[]
+  doctorSpecialties DoctorSpecialty[]
+  doctorOffices     DoctorOffice[]
+}
+
+enum daysOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+model DoctorSchedule {
+  id        String     @id @default(uuid())
+  doctorId  String
+  dayOfWeek daysOfWeek
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime   @default(now())
+  isActive  Boolean    @default(true)
+  updatedAt DateTime   @updatedAt
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
+}
+
+model DoctorOffice {
+  id        String   @id @default(uuid())
+  doctorId  String
+  officeId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  office    Office   @relation(fields: [officeId], references: [id])
+}
+
+model Office {
+  id            String         @id @default(uuid())
+  number        Int
+  floor         Int
+  indications   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  doctorOffices DoctorOffice[]
+}
+
+model DoctorSpecialty {
+  id          String    @id @default(uuid())
+  doctorId    String
+  specialtyId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  doctor      Doctor    @relation(fields: [doctorId], references: [id])
+  specialty   Specialty @relation(fields: [specialtyId], references: [id])
+}
+
+model Specialty {
+  id                String            @id @default(uuid())
+  name              String
+  description       String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  doctorSpecialties DoctorSpecialty[]
+}

@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  doctors-db:
+    image: postgres:16.2
+    container_name: doctors-database
+    restart: always
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=doctorsdb
