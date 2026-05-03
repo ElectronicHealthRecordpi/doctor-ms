@@ -5,7 +5,7 @@ import { UpdateOfficeDto } from './dto/update-office.dto';
 
 @Controller('office')
 export class OfficeController {
-  constructor(private readonly officeService: OfficeService) {}
+  constructor(private readonly officeService: OfficeService) { }
 
   @Post()
   create(@Body() createOfficeDto: CreateOfficeDto) {
@@ -19,16 +19,16 @@ export class OfficeController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.officeService.findOne(+id);
+    return this.officeService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOfficeDto: UpdateOfficeDto) {
-    return this.officeService.update(+id, updateOfficeDto);
+    return this.officeService.update(id, updateOfficeDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.officeService.remove(+id);
+    return this.officeService.remove(id);
   }
 }

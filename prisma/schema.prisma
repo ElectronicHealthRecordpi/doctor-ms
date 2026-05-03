@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -19,8 +18,10 @@ model Doctor {
   name              String
   lastName          String
   dateOfBirth       DateTime
-  licenseNumber     String
+  licenseNumber     String            @unique
   phone             String
+  isDeleted         Boolean           @default(false)
+  deletedAt         DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   doctorSchedules   DoctorSchedule[]
@@ -41,39 +42,52 @@ enum daysOfWeek {
 model DoctorSchedule {
   id        String     @id @default(uuid())
   doctorId  String
+  officeId  String
   dayOfWeek daysOfWeek
   startTime DateTime
   endTime   DateTime
-  createdAt DateTime   @default(now())
   isActive  Boolean    @default(true)
+  isDeleted Boolean    @default(false)
+  deletedAt DateTime?
+  createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   doctor    Doctor     @relation(fields: [doctorId], references: [id])
+  office    Office     @relation(fields: [officeId], references: [id])
 }
 
 model DoctorOffice {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   doctorId  String
   officeId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  office    Office   @relation(fields: [officeId], references: [id])
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  doctor    Doctor    @relation(fields: [doctorId], references: [id])
+  office    Office    @relation(fields: [officeId], references: [id])
+
+  @@unique([doctorId, officeId])
 }
 
 model Office {
-  id            String         @id @default(uuid())
-  number        Int
-  floor         Int
-  indications   String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  doctorOffices DoctorOffice[]
+  id              String           @id @default(uuid())
+  number          Int
+  floor           Int
+  indications     String
+  isDeleted       Boolean          @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  doctorOffices   DoctorOffice[]
+  doctorSchedules DoctorSchedule[]
 }
 
 model DoctorSpecialty {
   id          String    @id @default(uuid())
   doctorId    String
   specialtyId String
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   doctor      Doctor    @relation(fields: [doctorId], references: [id])
@@ -82,8 +96,10 @@ model DoctorSpecialty {
 
 model Specialty {
   id                String            @id @default(uuid())
-  name              String
+  name              String            @unique
   description       String
+  isDeleted         Boolean           @default(false)
+  deletedAt         DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   doctorSpecialties DoctorSpecialty[]

@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateSpecialtyDto } from './dto/create-specialty.dto';
 import { UpdateSpecialtyDto } from './dto/update-specialty.dto';
+import { BasePrismaService } from 'src/common/base-prisma.service';
 
 @Injectable()
-export class SpecialtyService {
-  create(createSpecialtyDto: CreateSpecialtyDto) {
-    return 'This action adds a new specialty';
+export class SpecialtyService extends BasePrismaService {
+  protected readonly logger = new Logger(SpecialtyService.name);
+
+  async create(createSpecialtyDto: CreateSpecialtyDto) {
+    const { name, description } = createSpecialtyDto;
+    const specialtyExists = await this.valueExists(
+      this.specialty, 'name', name, 'especialidad'
+    );
+    if (specialtyExists)
+      throw new ConflictException(`Especialidad con nombre "${name}" ya existe`);
+    return await this.specialty.create({
+      data: {
+        name,
+        description
+      }
+    });
+
   }
 
-  findAll() {
-    return `This action returns all specialty`;
+  async findAll() {
+    return await this.hasRecords(this.specialty, 'especialidades');
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} specialty`;
+  async findOne(id: string) {
+    await this.ensureExists(this.specialty, id, 'Especialidad');
+    return await this.specialty.findUnique({ where: { id } });
   }
 
-  update(id: number, updateSpecialtyDto: UpdateSpecialtyDto) {
-    return `This action updates a #${id} specialty`;
+  async update(id: string, updateSpecialtyDto: UpdateSpecialtyDto) {
+    await this.ensureExists(this.specialty, id, 'Especialidad');
+    const { name } = updateSpecialtyDto;
+
+    if (name) {
+      const nameExists = await this.valueExists(this.specialty, 'name', name, 'especialidad', id);
+      if (nameExists)
+        throw new ConflictException(`Especialidad con nombre "${name}" ya existe`);
+    }
+
+    return await this.specialty.update({
+      where: { id },
+      data: updateSpecialtyDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} specialty`;
+  async remove(id: string) {
+    return await this.softDelete(this.specialty, id, 'Especialidad');
   }
 }

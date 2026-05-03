@@ -5,7 +5,7 @@ import { UpdateSpecialtyDto } from './dto/update-specialty.dto';
 
 @Controller('specialty')
 export class SpecialtyController {
-  constructor(private readonly specialtyService: SpecialtyService) {}
+  constructor(private readonly specialtyService: SpecialtyService) { }
 
   @Post()
   create(@Body() createSpecialtyDto: CreateSpecialtyDto) {
@@ -19,16 +19,16 @@ export class SpecialtyController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.specialtyService.findOne(+id);
+    return this.specialtyService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSpecialtyDto: UpdateSpecialtyDto) {
-    return this.specialtyService.update(+id, updateSpecialtyDto);
+    return this.specialtyService.update(id, updateSpecialtyDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.specialtyService.remove(+id);
+    return this.specialtyService.remove(id);
   }
 }
